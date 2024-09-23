@@ -1,4 +1,6 @@
-import { AuthOptions, ISODateString } from "next-auth";
+import { LOGIN_URL } from "@/lib/apiEndpoints";
+import axios from "axios";
+import { Account, AuthOptions, ISODateString } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 export interface CustomSession {
@@ -20,10 +22,32 @@ export const authOptions: AuthOptions = {
     signIn: "/",
   },
   callbacks: {
-    async signIn({ user, account }) {
-      console.log("User Data: ", user);
-      console.log("Account Data: ", account);
-      return true;
+    async signIn({
+      user,
+      account,
+    }: {
+      user: CustomUser;
+      account: Account | null;
+    }) {
+      try {
+        const payload = {
+          name: user.name,
+          email: user.email,
+          oauth_id: account?.providerAccountId,
+          provider: account?.provider,
+          image: user?.image,
+        };
+
+        const { data } = await axios.post(LOGIN_URL, payload);
+        user.id = data?.user?.id?.toString();
+        user.token = data?.user?.token;
+        user.provider = data?.user?.provider;
+
+        return true;
+      } catch (error) {
+        console.log("Error");
+        return false;
+      }
     },
     async session({
       session,
@@ -46,7 +70,7 @@ export const authOptions: AuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       authorization: {
         params: {
