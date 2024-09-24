@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import SessionProvider from "@/lib/SessionProviders";
+import { Toaster } from "@/components/ui/sonner";
 // import SessionProvider from "../lib/SessionProviders";
 
 const fontSans = FontSans({
@@ -30,6 +31,7 @@ export default function RootLayout({
             fontSans.variable
           )}
         >
+          <Toaster richColors duration={1000} />
           {children}
         </body>
       </SessionProvider>
