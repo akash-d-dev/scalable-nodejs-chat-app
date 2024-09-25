@@ -23,6 +23,7 @@ function LogoutModal({
   const handleLogout = () => {
     signOut({ redirect: true, callbackUrl: "/" });
   };
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger>Open</AlertDialogTrigger>

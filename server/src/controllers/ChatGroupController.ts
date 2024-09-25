@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../config/db.config.js";
+
+///////////////////////////////////////////////
+// Logic
+///////////////////////////////////////////////
 class ChatGroupController {
   static async store(req: Request, res: Response) {
     try {
@@ -13,6 +17,7 @@ class ChatGroupController {
           user_id: user.id,
         },
       });
+      return res.json({ message: "Chat Group created successfully!" });
     } catch (error) {
       return res
         .status(500)

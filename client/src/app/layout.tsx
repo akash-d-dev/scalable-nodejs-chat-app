@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import SessionProvider from "@/lib/SessionProviders";
+import SessionProvider from "@/providers/SessionProviders";
 import { Toaster } from "@/components/ui/sonner";
 // import SessionProvider from "../lib/SessionProviders";
 

@@ -20,6 +20,7 @@ function LoginModal() {
       redirect: true,
     });
   };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
