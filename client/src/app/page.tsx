@@ -7,24 +7,19 @@ import { getServerSession } from "next-auth";
 import { authOptions, CustomSession } from "./api/auth/[...nextauth]/options";
 // import { authOptions, CustomSession } from "./api/auth/[...nextauth]/options";
 // import { getServerSession } from "next-auth";
+
 export default async function LandingPage() {
   const session: CustomSession | null = await getServerSession(authOptions);
-  // const session: CustomSession | null = await getServerSession(authOptions);
 
   return (
     <div className='min-h-screen flex flex-col '>
-      {/* Header */}
       <Navbar user={session?.user} />
-      {/* Hero Section */}
       <HeroSection />
 
-      {/* Features Section */}
       <FeatureSection />
 
-      {/* User Reviews Section */}
       <UserReviews />
 
-      {/* Footer */}
       <Footer />
     </div>
   );

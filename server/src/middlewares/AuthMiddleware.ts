@@ -22,7 +22,13 @@ const authMiddleware = async (
         return res.status(401).json({ status: 401, message: "Unauthorized" });
       }
       req.user = user as AuthUser;
+
+      console.log("***************");
+      console.log("***************");
       console.log(req.user);
+      console.log("***************");
+      console.log("***************");
+
       next();
     });
   } catch (error) {
