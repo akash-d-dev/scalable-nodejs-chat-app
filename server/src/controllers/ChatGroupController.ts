@@ -64,7 +64,7 @@ class ChatGroupController {
 
       console.log("***************");
       console.log("***************");
-      console.log("The body", body);
+      // console.log("The body", body);
       console.log("The user", user);
       console.log("***************");
       console.log("***************");
