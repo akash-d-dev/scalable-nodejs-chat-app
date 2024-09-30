@@ -13,6 +13,8 @@ import { instrument } from "@socket.io/admin-ui";
 const app: Application = express();
 const PORT = process.env.PORT || 7000;
 const server = createServer(app);
+
+// * Socket.io
 const io = new Server(server, {
   cors: {
     origin: [process.env.CLIENT_APP_URL, "https://admin.socket.io"],
@@ -21,11 +23,13 @@ const io = new Server(server, {
   adapter: createAdapter(redis),
 });
 
+// * Socket.io Admin UI
 instrument(io, {
   auth: false,
   mode: "development",
 });
 
+// * Setup Socket
 setupSocket(io);
 export { io };
 
@@ -38,6 +42,6 @@ app.get("/", (req: Request, res: Response) => {
   return res.send("It's working 🙌");
 });
 
-//Routes
+// * Routes
 app.use("/api", Routes);
 server.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));

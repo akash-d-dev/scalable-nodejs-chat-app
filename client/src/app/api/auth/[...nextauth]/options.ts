@@ -3,9 +3,7 @@ import axios from "axios";
 import { Account, AuthOptions, ISODateString } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-/////////////////////////////////////////////////////////////////////////
-// Interface
-/////////////////////////////////////////////////////////////////////////
+// Types
 export interface CustomSession {
   user?: CustomUser;
   expires: ISODateString;
@@ -20,9 +18,7 @@ export interface CustomUser {
   token?: string | null;
 }
 
-/////////////////////////////////////////////////////////////////////////
 // Logic
-/////////////////////////////////////////////////////////////////////////
 export const authOptions: AuthOptions = {
   pages: {
     signIn: "/",

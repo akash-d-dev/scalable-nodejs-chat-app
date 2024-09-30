@@ -1,9 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-/////////////////////////////////////////////////////////////////////////
 // Logic
-/////////////////////////////////////////////////////////////////////////
 const authMiddleware = async (
   req: Request,
   res: Response,
@@ -23,11 +21,9 @@ const authMiddleware = async (
       }
       req.user = user as AuthUser;
 
-      console.log("***************");
-      console.log("***************");
+      console.log("#########################");
       console.log(req.user);
-      console.log("***************");
-      console.log("***************");
+      console.log("#########################");
 
       next();
     });
