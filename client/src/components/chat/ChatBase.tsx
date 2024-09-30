@@ -1,40 +1,46 @@
 "use client";
-import { getSocket } from "@/lib/socket.confg";
-import React, { useEffect, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Button } from "../ui/button";
+import React, { useEffect, useMemo, useState } from "react";
+import ChatSidebar from "./ChatSidebar";
+import ChatNav from "./ChatNav";
+import ChatUserDialog from "./ChatUserDialog";
+import Chats from "./Chats";
 
-export default function ChatBase({ groupId }: { groupId: string }) {
-  // Prevent unnecessary calls
-  let socket = useMemo(() => {
-    const socket = getSocket();
-    socket.auth = {
-      room: groupId,
-    };
-    return socket.connect();
-  }, []);
+export default function ChatBase({
+  group,
+  users,
+  oldMessages,
+}: {
+  group: ChatGroupType;
+  users: Array<GroupChatUserType> | [];
+  oldMessages: Array<ChatMessageType> | [];
+}) {
+  const [open, setOpen] = useState(true);
+  const [chatUser, setChatUser] = useState<GroupChatUserType>();
 
-  // Disconnect the socket when the component is unmounted
   useEffect(() => {
-    socket.on("message", (data: any) => {
-      console.log("Socket message: ", data);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  // Send a message
-  const handleClick = () => {
-    socket.emit("message", { name: "John", message: "Hello", id: uuidv4() });
-
-    // console.log("Message sent");
-  };
+    const data = localStorage.getItem(group.id);
+    if (data) {
+      const jsonData = JSON.parse(data);
+      if (jsonData?.name && jsonData?.group_id) {
+        setOpen(false);
+        setChatUser(jsonData);
+      }
+    }
+  }, [group.id]);
 
   return (
-    <div>
-      <Button onClick={handleClick}>Send Message</Button>
+    <div className='flex'>
+      <ChatSidebar users={users} />
+
+      <div className='w-full md:w-4/5 bg-gradient-to-b from-gray-50 to-white'>
+        {open ? (
+          <ChatUserDialog open={open} setOpen={setOpen} group={group} />
+        ) : (
+          <ChatNav chatGroup={group} users={users} />
+        )}
+
+        <Chats group={group} chatUser={chatUser} oldMessages={oldMessages} />
+      </div>
     </div>
   );
 }

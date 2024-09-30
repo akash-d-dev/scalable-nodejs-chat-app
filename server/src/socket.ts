@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import prisma from "./config/db.config.js";
 
 // Types
 interface CustomSocket extends Socket {
@@ -30,9 +31,13 @@ export function setupSocket(io: Server) {
     console.log("Connected: ", socket.id);
     console.log("#########################");
 
-    socket.on("message", (message) => {
-      // Emit message to all clients in the room
-      io.to(socket.room).emit("message", message);
+    socket.on("message", async (message) => {
+      await prisma.chats.create({
+        data: message,
+      });
+
+      // Emit the message to the room
+      socket.to(socket.room).emit("message", message);
     });
   });
 }

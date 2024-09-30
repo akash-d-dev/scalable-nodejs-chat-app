@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../config/db.config.js";
 
-//
+// Types
 interface LoginPayloadType {
   name: string;
   email: string;
