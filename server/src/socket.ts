@@ -1,17 +1,34 @@
-import { Server } from "socket.io";
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 
-export function setUpSocket(io: Server) {
-  io.on("connection", (socket: Socket) => {
-    console.log("Socket connected", socket.id);
+interface CustomSocket extends Socket {
+  room?: string;
+}
 
-    socket.on("message", (data: string) => {
-      console.log("Message received");
-      socket.broadcast.emit("message", data);
-    });
+export function setupSocket(io: Server) {
+  ////////////////////////////////////////////////////
+  // Middleware to validate the room
+  ////////////////////////////////////////////////////
+  io.use((socket: CustomSocket, next) => {
+    const room = socket.handshake.auth.room || socket.handshake.headers.room;
+    if (!room) {
+      return next(new Error("Invalid Room"));
+    }
+    socket.room = room;
+    next();
+  });
 
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected", socket.id);
+  ////////////////////////////////////////////////////
+  // Connection event
+  ////////////////////////////////////////////////////
+  io.on("connection", (socket: CustomSocket) => {
+    // Join the room
+    socket.join(socket.room);
+
+    console.log("Connected: ", socket.id);
+
+    socket.on("message", (message) => {
+      // Emit message to all clients in the room
+      io.to(socket.room).emit("message", message);
     });
   });
 }
