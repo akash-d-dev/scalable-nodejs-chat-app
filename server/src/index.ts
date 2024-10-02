@@ -9,6 +9,7 @@ import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { redisClient, connectRedisClient } from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
 import { connectKafka } from "./config/kafka.config.js";
+import { kafkaConsumeMessage } from "./helper.js";
 
 // * Express App
 const app: Application = express();
@@ -20,6 +21,7 @@ connectRedisClient();
 
 // * Kafka Connection
 connectKafka();
+kafkaConsumeMessage(process.env.KAFKA_TOPIC);
 
 // * Socket.io
 const io = new Server(server, {
