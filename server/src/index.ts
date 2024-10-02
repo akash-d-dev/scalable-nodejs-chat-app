@@ -6,13 +6,20 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { setupSocket } from "./socket.js";
 import { createAdapter } from "@socket.io/redis-streams-adapter";
-import redis from "./config/redis.config.js";
+import { redisClient, connectRedisClient } from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
+import { connectKafka } from "./config/kafka.config.js";
 
 // * Express App
 const app: Application = express();
 const PORT = process.env.PORT || 7000;
 const server = createServer(app);
+
+// * Redis Connection
+connectRedisClient();
+
+// * Kafka Connection
+connectKafka();
 
 // * Socket.io
 const io = new Server(server, {
@@ -20,7 +27,7 @@ const io = new Server(server, {
     origin: [process.env.CLIENT_APP_URL, "https://admin.socket.io"],
     credentials: true,
   },
-  adapter: createAdapter(redis),
+  adapter: createAdapter(redisClient),
 });
 
 // * Socket.io Admin UI
