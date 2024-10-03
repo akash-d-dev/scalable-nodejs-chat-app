@@ -35,7 +35,15 @@ export function setupSocket(io: Server) {
 
     socket.on("message", async (message) => {
       // Save the message to the database
-      await kafkaProduceMessage(process.env.KAFKA_TOPIC, message);
+
+      const res = await kafkaProduceMessage(
+        process.env.KAFKA_TOPIC,
+        message
+      ).catch((error) => {
+        console.error("Error in producing message: ", error);
+      });
+
+      console.log("Message produced: ", res);
       // Emit the message to the room
       socket.to(socket.room).emit("message", message);
     });

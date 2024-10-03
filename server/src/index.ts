@@ -9,7 +9,10 @@ import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { redisClient, connectRedisClient } from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
 import { connectKafka } from "./config/kafka.config.js";
-import { kafkaConsumeMessage } from "./helper.js";
+import { checkEnvVariables, kafkaConsumeMessage } from "./helper.js";
+
+// * Check Required Environment Variables
+checkEnvVariables();
 
 // * Express App
 const app: Application = express();

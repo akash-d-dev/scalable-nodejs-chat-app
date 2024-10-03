@@ -40,3 +40,42 @@ export const kafkaConsumeMessage = async (topic: string) => {
     console.error("Error setting up consumer:", error);
   }
 };
+
+////////////////////////////////////////////////////////////
+// To check required environment variables
+////////////////////////////////////////////////////////////
+export const checkEnvVariables = () => {
+  const requiredEnvVars = [
+    "PORT",
+    "JWT_SECRET",
+    "CLIENT_APP_URL",
+    "REDIS_HOST",
+    "REDIS_PORT",
+    "REDIS_CLOUD_HOST",
+    "REDIS_CLOUD_PASSWORD",
+    "REDIS_CLOUD_PORT",
+    "KAFKA_BROKER",
+    "KAFKA_USERNAME",
+    "KAFKA_PASSWORD",
+    "KAFKA_TOPIC",
+    "KAFKA_GROUP_ID",
+    "KAFKA_CA_PATH",
+    "DATABASE_URL",
+  ];
+
+  const missingEnvVars = requiredEnvVars.filter(
+    (envVar) => !process.env[envVar]
+  );
+
+  if (missingEnvVars.length > 0) {
+    throw new Error(
+      `
+      ********************************************************************
+      Missing required environment variables: ${missingEnvVars.join(", ")}
+      ********************************************************************
+      `
+    );
+  }
+
+  console.log("All required environment variables are set!");
+};
