@@ -26,7 +26,7 @@ export default function ChatBase({
         setChatUser(jsonData);
       }
     }
-  }, [group.id]);
+  }, []);
 
   return (
     <div className='flex'>

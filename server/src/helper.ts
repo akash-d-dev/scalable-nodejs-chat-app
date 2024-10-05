@@ -27,7 +27,11 @@ export const kafkaConsumeMessage = async (topic: string) => {
       eachMessage: async ({ topic, partition, message }) => {
         try {
           const data = JSON.parse(message.value.toString());
-
+          console.log({
+            partition,
+            offset: message.offset,
+            value: data,
+          });
           await prisma.chats.create({
             data: data,
           });

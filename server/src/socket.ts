@@ -34,16 +34,20 @@ export function setupSocket(io: Server) {
     console.log("#########################");
 
     socket.on("message", async (message) => {
+      console.log("Message received");
       // Save the message to the database
 
-      const res = await kafkaProduceMessage(
-        process.env.KAFKA_TOPIC,
-        message
-      ).catch((error) => {
-        console.error("Error in producing message: ", error);
-      });
+      await kafkaProduceMessage(process.env.KAFKA_TOPIC, message).catch(
+        (error) => {
+          console.error("Error in producing message: ", error);
+        }
+      );
 
-      console.log("Message produced: ", res);
+      // socket.on("message", async (message) => {
+      // await prisma.chats.create({
+      //   data: message,
+      // });
+      // });
       // Emit the message to the room
       socket.to(socket.room).emit("message", message);
     });
