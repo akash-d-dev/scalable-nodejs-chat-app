@@ -10,6 +10,7 @@ import { redisClient, connectRedisClient } from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
 import { connectKafka } from "./config/kafka.config.js";
 import { checkEnvVariables, kafkaConsumeMessage } from "./helper.js";
+import morgan from "morgan";
 
 // * Check Required Environment Variables
 checkEnvVariables();
@@ -18,6 +19,8 @@ checkEnvVariables();
 const app: Application = express();
 const PORT = process.env.PORT || 7000;
 const server = createServer(app);
+const NODE_ENV = process.env.NODE_ENV || "dev";
+const morganFormat = NODE_ENV === "production" ? "combined" : "dev";
 
 // * Redis Connection
 connectRedisClient();
@@ -49,6 +52,7 @@ export { io };
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(morgan(morganFormat));
 
 app.get("/", (req: Request, res: Response) => {
   return res.send("It's working 🙌");
