@@ -1,5 +1,8 @@
 import { CHAT_GROUP_URL, CHAT_GROUP_USERS_URL } from "@/lib/apiEndpoints";
 
+////////////////////////////////////////////////////
+// To fetch all chat rooms
+////////////////////////////////////////////////////
 export async function fetchChatGroups(token: string) {
   const res = await fetch(CHAT_GROUP_URL, {
     headers: {
@@ -21,6 +24,9 @@ export async function fetchChatGroups(token: string) {
   return [];
 }
 
+////////////////////////////////////////////////////
+// To fetch all messages in a single chat room
+////////////////////////////////////////////////////
 export async function fetchChatGroup(id: string) {
   const res = await fetch(`${CHAT_GROUP_URL}/${id}`, {
     cache: "no-cache",
@@ -40,6 +46,9 @@ export async function fetchChatGroup(id: string) {
   return [];
 }
 
+////////////////////////////////////////////////////
+// To fetch all users in a chat room
+////////////////////////////////////////////////////
 export async function fetchChatUsers(id: string) {
   const res = await fetch(`${CHAT_GROUP_USERS_URL}?group_id=${id}`, {
     cache: "no-cache",

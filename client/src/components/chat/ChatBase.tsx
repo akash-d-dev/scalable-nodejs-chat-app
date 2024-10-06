@@ -36,10 +36,15 @@ export default function ChatBase({
         {open ? (
           <ChatUserDialog open={open} setOpen={setOpen} group={group} />
         ) : (
-          <ChatNav chatGroup={group} users={users} />
+          <>
+            <ChatNav chatGroup={group} users={users} />
+            <Chats
+              group={group}
+              chatUser={chatUser}
+              oldMessages={oldMessages}
+            />
+          </>
         )}
-
-        <Chats group={group} chatUser={chatUser} oldMessages={oldMessages} />
       </div>
     </div>
   );
