@@ -32,7 +32,7 @@ export const kafkaConsumeMessage = async (topic: string) => {
             offset: message.offset,
             value: data,
           });
-          await prisma.chats.create({
+          const sucess = await prisma.chats.create({
             data: data,
           });
         } catch (error) {

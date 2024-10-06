@@ -61,7 +61,7 @@ class ChatGroupController {
 
       console.log("#########################");
       // console.log("The body", body);
-      console.log("The user", user);
+      console.log("ChatGroupController.store", user.email);
       console.log("#########################");
 
       await prisma.chatGroup.create({

@@ -22,7 +22,7 @@ const authMiddleware = async (
       req.user = user as AuthUser;
 
       console.log("#########################");
-      console.log(req.user);
+      console.log("AuthMiddleware User:", req.user.email);
       console.log("#########################");
 
       next();
