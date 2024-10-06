@@ -13,3 +13,5 @@ http://localhost:8000
 ```
 
 <!-- $env:PORT=8002; npm run dev -->
+
+<!-- npx prisma migrate dev --name init -->

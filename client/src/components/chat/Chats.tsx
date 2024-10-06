@@ -45,11 +45,11 @@ export default function Chats({
     if (!message.length) return;
 
     const payload: ChatMessageType = {
-      // id: uuidv4(),
       message: message,
       name: chatUser?.name ?? "Unknown",
       created_at: new Date().toISOString(),
       group_id: group.id,
+      user_id: chatUser?.id ?? "",
     };
 
     console.log("The payload is", payload);
