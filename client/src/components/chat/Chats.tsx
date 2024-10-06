@@ -1,7 +1,5 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getSocket } from "@/lib/socket.confg";
-import { Input } from "../ui/input";
-import { v4 as uuidv4 } from "uuid";
 export default function Chats({
   group,
   oldMessages,
@@ -44,13 +42,17 @@ export default function Chats({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (!message.length) return;
+
     const payload: ChatMessageType = {
-      id: uuidv4(),
+      // id: uuidv4(),
       message: message,
       name: chatUser?.name ?? "Unknown",
       created_at: new Date().toISOString(),
       group_id: group.id,
     };
+
+    console.log("The payload is", payload);
     socket.emit("message", payload);
     setMessage("");
     setMessages([...messages, payload]);
@@ -61,9 +63,9 @@ export default function Chats({
       <div className='flex-1 overflow-y-auto flex flex-col-reverse'>
         <div ref={messagesEndRef} />
         <div className='flex flex-col gap-2'>
-          {messages.map((message) => (
+          {messages.map((message, i) => (
             <div
-              key={message.id}
+              key={i}
               className={`max-w-sm rounded-lg p-2 ${
                 message.name === chatUser?.name
                   ? "bg-gradient-to-r from-blue-400 to-blue-600  text-white self-end"

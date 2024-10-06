@@ -1,6 +1,4 @@
 import { Server, Socket } from "socket.io";
-import prisma from "./config/db.config.js";
-import { kafka } from "./config/kafka.config.js";
 import { kafkaProduceMessage } from "./helper.js";
 
 // Types
