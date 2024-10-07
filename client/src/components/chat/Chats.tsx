@@ -1,14 +1,37 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getSocket } from "@/lib/socket.confg";
+import chat from "@/app/chat/[id]/page";
 export default function Chats({
   group,
   oldMessages,
   chatUser,
+  setChatUser,
+  setOpen,
 }: {
   group: ChatGroupType;
-  oldMessages: Array<ChatMessageType> | [];
+  oldMessages: Array<ChatMessageType>;
   chatUser?: GroupChatUserType;
+  setChatUser: Dispatch<SetStateAction<GroupChatUserType | undefined>>;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
+  useEffect(() => {
+    const data = localStorage.getItem(group.id);
+    if (data) {
+      const jsonData = JSON.parse(data);
+      if (jsonData?.name && jsonData?.group_id) {
+        setOpen(false);
+        setChatUser(jsonData);
+      }
+    }
+  }, []);
+
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -67,7 +90,7 @@ export default function Chats({
             <div
               key={i}
               className={`max-w-sm rounded-lg p-2 ${
-                message.name === chatUser?.name
+                message.user_id === chatUser?.id
                   ? "bg-gradient-to-r from-blue-400 to-blue-600  text-white self-end"
                   : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
               }`}

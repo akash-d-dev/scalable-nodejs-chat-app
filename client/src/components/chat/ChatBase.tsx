@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import ChatSidebar from "./ChatSidebar";
 import ChatNav from "./ChatNav";
 import ChatUserDialog from "./ChatUserDialog";
@@ -17,17 +17,6 @@ export default function ChatBase({
   const [open, setOpen] = useState(true);
   const [chatUser, setChatUser] = useState<GroupChatUserType>();
 
-  useEffect(() => {
-    const data = localStorage.getItem(group.id);
-    if (data) {
-      const jsonData = JSON.parse(data);
-      if (jsonData?.name && jsonData?.group_id) {
-        setOpen(false);
-        setChatUser(jsonData);
-      }
-    }
-  }, []);
-
   return (
     <div className='flex'>
       <ChatSidebar users={users} />
@@ -41,6 +30,8 @@ export default function ChatBase({
             <Chats
               group={group}
               chatUser={chatUser}
+              setChatUser={setChatUser}
+              setOpen={setOpen}
               oldMessages={oldMessages}
             />
           </>
