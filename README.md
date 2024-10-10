@@ -6,13 +6,11 @@ Dashboard
 Chat Page
 ![image](https://github.com/user-attachments/assets/106f23e7-bf1d-4f9c-aa5c-44f103a258f4)
 
-ChatBappa is a free real time chating application. You can create chat rooms and share the it with anyone, people can join just by using room id and passcode, no need for login/signup.
+ChatBappa is a free real-time chatting application. You can create chat rooms and share them with anyone; people can join using just the room ID and passcode—no login or signup required.
 
-⚠ ChataBappa is hosted on a free web hositng platform, at times it might take a while to start due to cold start. Hit [https://scalable-nodejs-chat-app.onrender.com/] to check if server is running or not.
+⚠ ChatBappa is hosted on a free web hosting platform, so it may take a while to start due to cold starts. Visit [https://scalable-nodejs-chat-app.onrender.com/] to check if the server is running.
 
 # Technologies Used
-
-- ChatBappa is built using the following technologies:
 - Supabase: An open-source, serverless database infrastructure that provides a Postgres database as part of its hosted backend services
 - Prisma(SQL): A next-generation ORM that makes working with databases easy for application developers.
 - Express: A web application framework for Node.js used to build the backend server
