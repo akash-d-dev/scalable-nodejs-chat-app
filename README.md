@@ -1,5 +1,10 @@
 # ChatBappa
+Home Page
 ![image](https://github.com/user-attachments/assets/72aa5106-178e-48dc-9c68-d1e197cbd8fd)
+Dashboard
+![image](https://github.com/user-attachments/assets/6bcb91b4-817a-4b13-830b-59e7f9825bba)
+Chat Page
+![image](https://github.com/user-attachments/assets/106f23e7-bf1d-4f9c-aa5c-44f103a258f4)
 
 ChatBappa is a free real time chating application. You can create chat rooms and share the it with anyone, people can join just by using room id and passcode, no need for login/signup.
 
