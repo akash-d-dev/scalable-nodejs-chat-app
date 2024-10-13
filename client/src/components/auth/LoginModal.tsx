@@ -1,19 +1,22 @@
-"use client";
 import React from "react";
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 
-function LoginModal() {
+function LoginModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   const handleLogin = () => {
     signIn("google", {
       callbackUrl: "/dashboard",
@@ -22,17 +25,11 @@ function LoginModal() {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Getting Started</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className='text-2xl'>Welcome to ChatBappa</DialogTitle>
-          <DialogDescription>
-            Ekdun solid cheej banaye hai. Na Gym kre na Login kare, Chatting
-            kare jab man kre
-          </DialogDescription>
+          <DialogDescription>Choose an option to continue</DialogDescription>
         </DialogHeader>
         <Button variant={"outline"} onClick={handleLogin}>
           <Image

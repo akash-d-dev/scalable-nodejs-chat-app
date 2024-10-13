@@ -25,7 +25,7 @@ export async function fetchChatGroups(token: string) {
 }
 
 ////////////////////////////////////////////////////
-// To fetch all messages in a single chat room
+// To fetch a chat room
 ////////////////////////////////////////////////////
 export async function fetchChatGroup(id: string) {
   const res = await fetch(`${CHAT_GROUP_URL}/${id}`, {

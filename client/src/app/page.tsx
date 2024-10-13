@@ -14,7 +14,7 @@ export default async function LandingPage() {
   return (
     <div className='min-h-screen flex flex-col '>
       <Navbar user={session?.user} />
-      <HeroSection />
+      <HeroSection user={session?.user} />
 
       <FeatureSection />
 
