@@ -5,6 +5,7 @@ import { consumer, producer } from "./config/kafka.config.js";
 // To send a message to specified Kafka topic
 ////////////////////////////////////////////////////////////
 export const kafkaProduceMessage = async (topic: string, message: string) => {
+  console.log("Sending message to Kafka topic:", topic);
   try {
     await producer.send({
       topic,
@@ -25,18 +26,49 @@ export const kafkaConsumeMessage = async (topic: string) => {
 
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
+        const messageValue = message.value?.toString();
+
+        if (!messageValue) {
+          console.error("Received null or undefined message");
+          return;
+        }
+
+        let data: any;
         try {
-          const data = JSON.parse(message.value.toString());
+          data = JSON.parse(messageValue);
           console.log({
             partition,
             offset: message.offset,
             value: data,
           });
-          const sucess = await prisma.chats.create({
-            data: data,
+        } catch (error) {
+          console.error("Error parsing message:", error);
+          return; // Early return, stop further processing
+        }
+
+        console.log("Processing message:", data);
+
+        const {
+          message: msgContent,
+          name,
+          created_at,
+          group_id,
+          user_id,
+        } = data;
+
+        try {
+          // Insert into the database using prisma.chats.create
+          await prisma.chats.create({
+            data: {
+              message: msgContent,
+              name: name,
+              created_at: created_at,
+              group_id: group_id,
+              user_id: user_id,
+            },
           });
         } catch (error) {
-          console.error("Error processing message:", error);
+          console.error("Error saving message to DB:", error);
         }
       },
     });
