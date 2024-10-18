@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 import { getSocket } from "@/lib/socket.confg";
-import chat from "@/app/chat/[id]/page";
 export default function Chats({
   group,
   oldMessages,
@@ -21,6 +20,13 @@ export default function Chats({
   setChatUser: Dispatch<SetStateAction<GroupChatUserType | undefined>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     const data = localStorage.getItem(group.id);
     if (data) {
@@ -32,14 +38,6 @@ export default function Chats({
     }
   }, []);
 
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   // Prevent unnecessary calls
   let socket = useMemo(() => {
     const socket = getSocket();
@@ -49,14 +47,15 @@ export default function Chats({
     return socket.connect();
   }, []);
 
-  // Disconnect the socket when the component is unmounted
+  // Listen for messages
   useEffect(() => {
+    //Socket event listener
     socket.on("message", (data: ChatMessageType) => {
-      console.log("The message is", data);
       setMessages((prevMessages) => [...prevMessages, data]);
       scrollToBottom();
     });
 
+    // Disconnect the socket when the component is unmounted
     return () => {
       socket.close();
     };
@@ -75,8 +74,9 @@ export default function Chats({
       user_id: chatUser?.id ?? "",
     };
 
-    console.log("The payload is", payload);
+    // Emit the message to the room
     socket.emit("message", payload);
+
     setMessage("");
     setMessages([...messages, payload]);
   };

@@ -19,8 +19,7 @@ export default function ChatBase({
 
   return (
     <div className='flex'>
-      <ChatSidebar users={users} />
-
+      {!open && <ChatSidebar users={users} />}
       <div className='w-full md:w-4/5 bg-gradient-to-b from-gray-50 to-white'>
         {open ? (
           <ChatUserDialog open={open} setOpen={setOpen} group={group} />
