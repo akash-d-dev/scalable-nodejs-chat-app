@@ -1,39 +1,101 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatSidebar from "./ChatSidebar";
 import ChatNav from "./ChatNav";
 import ChatUserDialog from "./ChatUserDialog";
 import Chats from "./Chats";
+import { getSocket } from "@/lib/socket.confg";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
 
 export default function ChatBase({
   group,
-  users,
+  oldUsers,
   oldMessages,
 }: {
   group: ChatGroupType;
-  users: Array<GroupChatUserType> | [];
+  oldUsers: Array<GroupChatUserType> | [];
   oldMessages: Array<ChatMessageType> | [];
 }) {
   const [open, setOpen] = useState(true);
-  const [chatUser, setChatUser] = useState<GroupChatUserType>();
+  const [chatUser, setChatUser] = useState<GroupChatUserType | null>(null);
+  const [socket, setSocket] = useState<any>(null); // Socket instance
+  const params = useParams();
+
+  // Check localStorage on page load for user details
+  useEffect(() => {
+    const storedData = localStorage.getItem(params["id"] as string);
+    if (storedData) {
+      const jsonData = JSON.parse(storedData);
+      if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
+        let connection = connectSocket(group, jsonData.passcode);
+        if (!connection) {
+          toast.error("Please check the passcode and try again.");
+          localStorage.removeItem(params["id"] as string);
+        } else {
+          setOpen(false);
+          setChatUser(jsonData);
+        }
+      }
+    }
+  }, []);
+
+  // Socket connection function
+  const connectSocket = async (
+    chatGroup: ChatGroupType,
+    passcode: string
+  ): Promise<boolean> => {
+    try {
+      const socket = getSocket();
+      socket.auth = {
+        room: chatGroup.id,
+        passCode: passcode,
+      };
+
+      // Promise that resolves when the socket connection is established or fails
+      return new Promise((resolve, reject) => {
+        socket.connect();
+
+        // Handle successful connection
+        socket.on("connect", () => {
+          setSocket(socket);
+          resolve(true);
+        });
+
+        // Handle connection errors
+        socket.on("connect_error", (error) => {
+          // console.error("Socket connection error:", error);
+          resolve(false);
+        });
+      });
+    } catch (error) {
+      console.error("Failed to establish socket connection:", error);
+      return false; // Return false on exception
+    }
+  };
 
   return (
     <div className='flex'>
-      {!open && <ChatSidebar users={users} />}
+      {!open && socket && <ChatSidebar socket={socket} oldUsers={oldUsers} />}
       <div className='w-full md:w-4/5 bg-gradient-to-b from-gray-50 to-white'>
-        {open ? (
-          <ChatUserDialog open={open} setOpen={setOpen} group={group} />
-        ) : (
+        {!open && socket ? (
           <>
-            <ChatNav chatGroup={group} users={users} />
+            <ChatNav chatGroup={group} oldUsers={oldUsers} />
             <Chats
               group={group}
-              chatUser={chatUser}
-              setChatUser={setChatUser}
-              setOpen={setOpen}
               oldMessages={oldMessages}
+              chatUser={chatUser}
+              socket={socket}
             />
           </>
+        ) : (
+          <ChatUserDialog
+            open={open}
+            setOpen={setOpen}
+            group={group}
+            setChatUser={setChatUser}
+            connectSocket={connectSocket}
+          />
         )}
       </div>
     </div>

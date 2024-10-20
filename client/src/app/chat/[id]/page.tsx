@@ -9,7 +9,8 @@ export default async function chat({ params }: { params: { id: string } }) {
     return notFound();
   }
 
-  const group: ChatGroupType = await fetchChatGroup(params.id);
+  const group: ChatGroupType | null = await fetchChatGroup(params.id);
+  console.log("group", group);
   if (!group) {
     return notFound();
   }
@@ -20,7 +21,7 @@ export default async function chat({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <ChatBase users={users} group={group} oldMessages={chats} />
+      <ChatBase oldUsers={users} group={group} oldMessages={chats} />
     </div>
   );
 }

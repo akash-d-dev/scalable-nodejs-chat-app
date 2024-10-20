@@ -19,10 +19,14 @@ export default function ChatUserDialog({
   open,
   setOpen,
   group,
+  setChatUser,
+  connectSocket,
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   group: ChatGroupType;
+  setChatUser: Dispatch<SetStateAction<GroupChatUserType | null>>;
+  connectSocket: (group: ChatGroupType, passcode: string) => Promise<boolean>;
 }) {
   const params = useParams();
   const [state, setState] = useState({
@@ -34,34 +38,46 @@ export default function ChatUserDialog({
     const data = localStorage.getItem(params["id"] as string);
     if (data) {
       const jsonData = JSON.parse(data);
-      if (jsonData?.name && jsonData?.group_id) {
+      if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
         setOpen(false);
       }
     }
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  // Form submission for user dialog
+  const handleSubmit = async (
+    event: React.FormEvent,
+    name: string,
+    passcode: string
+  ) => {
     event.preventDefault();
-    const localData = localStorage.getItem(params["id"] as string);
-    if (!localData) {
-      try {
-        const { data } = await axios.post(CHAT_GROUP_USERS_URL, {
-          name: state.name,
-          group_id: params["id"] as string,
-        });
-        localStorage.setItem(
-          params["id"] as string,
-          JSON.stringify(data?.data)
-        );
-      } catch (error) {
-        toast.error("Something went wrong.please try again!");
-      }
+    if (!name || !passcode) {
+      toast.error("Please fill in all fields");
+      return;
     }
-    if (group.passcode != state.passcode) {
-      toast.error("Please enter correct passcode!");
-    } else {
+
+    try {
+      let connection = await connectSocket(group, passcode);
+
+      console.log("connection", connection);
+
+      if (!connection) {
+        toast.error("Please check the passcode and try again.");
+        return;
+      }
+      const { data } = await axios.post(CHAT_GROUP_USERS_URL, {
+        name: name,
+        group_id: params["id"] as string,
+      });
+
+      // Save user details and passcode in local storage
+      const userData = { ...data?.data, passcode };
+      localStorage.setItem(params["id"] as string, JSON.stringify(userData));
+      setChatUser(userData);
       setOpen(false);
       clearCache("chat/[id]");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again!");
     }
   };
 
@@ -71,10 +87,10 @@ export default function ChatUserDialog({
         <DialogHeader>
           <DialogTitle>Add Name and Passcode</DialogTitle>
           <DialogDescription>
-            Add your name and passcode to join in room
+            Add your name and passcode to join the room
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => handleSubmit(e, state.name, state.passcode)}>
           <div className='mt-2'>
             <Input
               placeholder='Enter your name'

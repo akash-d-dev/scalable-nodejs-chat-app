@@ -7,18 +7,17 @@ import React, {
   useState,
 } from "react";
 import { getSocket } from "@/lib/socket.confg";
+import { Socket } from "socket.io-client";
 export default function Chats({
   group,
   oldMessages,
   chatUser,
-  setChatUser,
-  setOpen,
+  socket,
 }: {
   group: ChatGroupType;
   oldMessages: Array<ChatMessageType>;
-  chatUser?: GroupChatUserType;
-  setChatUser: Dispatch<SetStateAction<GroupChatUserType | undefined>>;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  chatUser?: GroupChatUserType | null;
+  socket: Socket;
 }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
@@ -27,25 +26,25 @@ export default function Chats({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    const data = localStorage.getItem(group.id);
-    if (data) {
-      const jsonData = JSON.parse(data);
-      if (jsonData?.name && jsonData?.group_id) {
-        setOpen(false);
-        setChatUser(jsonData);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const data = localStorage.getItem(group.id);
+  //   if (data) {
+  //     const jsonData = JSON.parse(data);
+  //     if (jsonData?.name && jsonData?.group_id) {
+  //       setOpen(false);
+  //       setChatUser(jsonData);
+  //     }
+  //   }
+  // }, []);
 
-  // Prevent unnecessary calls
-  let socket = useMemo(() => {
-    const socket = getSocket();
-    socket.auth = {
-      room: group.id,
-    };
-    return socket.connect();
-  }, []);
+  // // Prevent unnecessary calls
+  // let socket = useMemo(() => {
+  //   const socket = getSocket();
+  //   socket.auth = {
+  //     room: group.id,
+  //   };
+  //   return socket.connect();
+  // }, []);
 
   // Listen for messages
   useEffect(() => {

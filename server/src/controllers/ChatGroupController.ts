@@ -35,14 +35,19 @@ class ChatGroupController {
     try {
       const { id } = req.params;
 
-      const groups = await prisma.chatGroup.findUnique({
+      const group = await prisma.chatGroup.findUnique({
         where: {
           id: id,
         },
       });
+
+      if (group) {
+        delete group.passcode;
+      }
+
       return res.json({
         message: "Chat Group fetched successfully!",
-        data: groups,
+        data: group,
       });
     } catch (error) {
       return res

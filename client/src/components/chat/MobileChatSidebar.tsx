@@ -10,24 +10,24 @@ import {
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 
 export default function MobileChatSidebar({
-  users,
+  oldUsers,
 }: {
-  users: Array<GroupChatUserType> | [];
+  oldUsers: Array<GroupChatUserType> | [];
 }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
         <HamburgerMenuIcon />
       </SheetTrigger>
-      <SheetContent side="left" className="bg-muted">
+      <SheetContent side='left' className='bg-muted'>
         <SheetHeader>
-          <SheetTitle className="text-2xl font-bold">Users</SheetTitle>
+          <SheetTitle className='text-2xl font-bold'>Users</SheetTitle>
         </SheetHeader>
         <div>
-          {users.length > 0 &&
-            users.map((item, index) => (
-              <div key={index} className="bg-white rounded-md p-2 mt-2">
-                <p className="font-bold"> {item.name}</p>
+          {oldUsers.length > 0 &&
+            oldUsers.map((item, index) => (
+              <div key={index} className='bg-white rounded-md p-2 mt-2'>
+                <p className='font-bold'> {item.name}</p>
                 <p>
                   Joined :{" "}
                   <span>{new Date(item.created_at).toDateString()}</span>

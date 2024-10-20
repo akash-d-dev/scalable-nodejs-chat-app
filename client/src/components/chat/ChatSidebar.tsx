@@ -1,10 +1,29 @@
-import React from "react";
+import { getSocket } from "@/lib/socket.confg";
+import React, { useEffect, useMemo, useState } from "react";
+import { Socket } from "socket.io-client";
 
 export default function ChatSidebar({
-  users,
+  socket,
+  oldUsers,
 }: {
-  users: Array<GroupChatUserType> | [];
+  socket: Socket;
+  oldUsers: Array<GroupChatUserType> | [];
 }) {
+  const [users, setUsers] = useState<Array<GroupChatUserType>>(oldUsers);
+
+  useEffect(() => {
+    // Listen for the userJoined event
+    socket.on("userJoined", (newUser: GroupChatUserType) => {
+      setUsers((prevUsers) => [...prevUsers, newUser]);
+    });
+
+    // Disconnect the socket when the component is unmounted
+    return () => {
+      // socket.off("userJoined");
+      socket.close();
+    };
+  }, []);
+
   return (
     <div className='hidden md:block h-screen overflow-y-auto w-1/5 bg-muted px-2'>
       <h1 className='text-2xl font-extrabold py-4 '>Users</h1>
