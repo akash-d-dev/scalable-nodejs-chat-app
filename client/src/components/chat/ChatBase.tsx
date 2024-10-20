@@ -76,7 +76,9 @@ export default function ChatBase({
 
   return (
     <div className='flex'>
-      {!open && socket && <ChatSidebar socket={socket} oldUsers={oldUsers} />}
+      {!open && socket && (
+        <ChatSidebar socket={socket} chatUser={chatUser} oldUsers={oldUsers} />
+      )}
       <div className='w-full md:w-4/5 bg-gradient-to-b from-gray-50 to-white'>
         {!open && socket ? (
           <>

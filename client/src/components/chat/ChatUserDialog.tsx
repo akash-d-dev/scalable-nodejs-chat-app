@@ -1,5 +1,5 @@
 "use client";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -34,15 +34,15 @@ export default function ChatUserDialog({
     passcode: "",
   });
 
-  useEffect(() => {
-    const data = localStorage.getItem(params["id"] as string);
-    if (data) {
-      const jsonData = JSON.parse(data);
-      if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
-        setOpen(false);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const data = localStorage.getItem(params["id"] as string);
+  //   if (data) {
+  //     const jsonData = JSON.parse(data);
+  //     if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
+  //       setOpen(false);
+  //     }
+  //   }
+  // }, []);
 
   // Form submission for user dialog
   const handleSubmit = async (

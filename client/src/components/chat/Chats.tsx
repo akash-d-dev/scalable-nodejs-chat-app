@@ -56,7 +56,8 @@ export default function Chats({
 
     // Disconnect the socket when the component is unmounted
     return () => {
-      socket.close();
+      socket.off("message");
+      // socket.close();
     };
   }, []);
 
