@@ -44,6 +44,7 @@ export default function EditGroupChat({
   });
 
   useEffect(() => {
+    if (!group.title || !group.passcode) return;
     setValue("title", group.title);
     setValue("passcode", group.passcode);
   }, [group]);
