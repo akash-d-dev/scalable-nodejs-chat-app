@@ -1,5 +1,4 @@
 class PrismaUtils {
-  // General function to fetch the first record based on a filter
   static async findFirst(model: any, where: object) {
     try {
       return await model.findFirst({ where });
@@ -8,7 +7,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to fetch many records based on a filter
   static async findMany(model: any, where: object, orderBy?: object) {
     try {
       return await model.findMany({
@@ -20,7 +18,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to fetch a single record by unique identifier
   static async findOne(model: any, where: object) {
     try {
       return await model.findUnique({ where });
@@ -29,7 +26,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to create a record
   static async create(model: any, data: object) {
     try {
       return await model.create({
@@ -40,7 +36,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to update a record by unique identifier
   static async update(model: any, where: object, data: object) {
     try {
       return await model.update({
@@ -52,7 +47,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to delete a record by unique identifier
   static async delete(model: any, where: object) {
     try {
       return await model.delete({
@@ -63,7 +57,6 @@ class PrismaUtils {
     }
   }
 
-  // General function to delete many records based on a filter
   static async deleteMany(model: any, where: object) {
     try {
       return await model.deleteMany({
