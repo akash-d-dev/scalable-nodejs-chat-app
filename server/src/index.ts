@@ -38,6 +38,11 @@ const io = new Server(server, {
   adapter: createAdapter(redisClient),
 });
 
+// * Socket Error Handling
+io.on("error", (error) => {
+  console.error("Socket.IO Error: ", error);
+});
+
 // * Socket.io Admin UI
 instrument(io, {
   auth: false,
