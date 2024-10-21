@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Socket } from "socket.io-client";
+import { set } from "zod";
 
 export default function ChatSidebar({
   socket,
@@ -16,7 +17,12 @@ export default function ChatSidebar({
     if (!chatUser) return;
 
     socket.on("userJoined", (newUser: GroupChatUserType) => {
-      setUsers((prevUsers) => [...prevUsers, newUser]);
+      setUsers((prevUsers) => {
+        if (prevUsers.some((user) => user.id === newUser.id)) {
+          return prevUsers;
+        }
+        return [...prevUsers, newUser];
+      });
     });
 
     // Disconnect the socket when the component is unmounted

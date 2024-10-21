@@ -43,11 +43,8 @@ export function setupSocket(io: Server) {
     console.log("#########################");
 
     socket.on("message", async (message) => {
-      console.log("Message: ", message);
-      // Save the message to the database
       await kafkaProduceMessage(process.env.KAFKA_TOPIC, message).catch(
         (error) => {
-          // socket.emit("error", "Message delivery failed. Please try again.");
           console.error("Error in producing message: ", error);
         }
       );
@@ -57,7 +54,7 @@ export function setupSocket(io: Server) {
     });
 
     socket.on("userJoined", (user) => {
-      // Broadcast the new user to everyone in the room
+      // socket.to(socket.room).emit("userJoined", user);
       io.in(socket.room).emit("userJoined", user);
     });
   });

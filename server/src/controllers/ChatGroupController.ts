@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/db.config.js";
+import PrismaUtils from "../utils/PrismaUtils.js";
 
 class ChatGroupController {
   ////////////////////////////////////////////////////
@@ -9,14 +10,16 @@ class ChatGroupController {
     try {
       const user = req.user;
 
-      const groups = await prisma.chatGroup.findMany({
-        where: {
+      const groups = await PrismaUtils.findMany(
+        prisma.chatGroup,
+        {
           user_id: user.id,
         },
-        orderBy: {
+        {
           created_at: "desc",
-        },
-      });
+        }
+      );
+
       return res.json({
         message: "Chat Groups fetched successfully!",
         data: groups,
@@ -35,11 +38,7 @@ class ChatGroupController {
     try {
       const { id } = req.params;
 
-      const group = await prisma.chatGroup.findUnique({
-        where: {
-          id: id,
-        },
-      });
+      const group = await PrismaUtils.findOne(prisma.chatGroup, { id });
 
       if (group) {
         delete group.passcode;
@@ -69,12 +68,10 @@ class ChatGroupController {
       console.log("ChatGroupController.store", user.email);
       console.log("#########################");
 
-      await prisma.chatGroup.create({
-        data: {
-          title: body.title,
-          passcode: body.passcode,
-          user_id: user.id,
-        },
+      await PrismaUtils.create(prisma.chatGroup, {
+        title: body.title,
+        passcode: body.passcode,
+        user_id: user.id,
       });
       return res.json({ message: "Chat Group created successfully!" });
     } catch (error) {
@@ -91,16 +88,15 @@ class ChatGroupController {
     try {
       const body = req.body;
       const { id } = req.params;
-
-      await prisma.chatGroup.update({
-        data: {
+      await PrismaUtils.update(
+        prisma.chatGroup,
+        { id },
+        {
           title: body.title,
           passcode: body.passcode,
-        },
-        where: {
-          id: id,
-        },
-      });
+        }
+      );
+
       return res.json({ message: "Chat Group updated successfully" });
     } catch (error) {
       return res
@@ -116,12 +112,8 @@ class ChatGroupController {
   static async destroy(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      await PrismaUtils.delete(prisma.chatGroup, { id });
 
-      await prisma.chatGroup.delete({
-        where: {
-          id: id,
-        },
-      });
       return res.json({ message: "Chat Group deleted successfully!" });
     } catch (error) {
       return res

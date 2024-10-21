@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import PrismaUtils from "../utils/PrismaUtils.js";
 import prisma from "../config/db.config.js";
 
 // Types
@@ -15,15 +16,15 @@ class ChatGroupUserController {
   static async index(req: Request, res: Response) {
     try {
       const { group_id } = req.query;
-      const user = await prisma.groupUsers.findMany({
-        where: {
-          group_id: group_id as string,
-        },
+
+      // Use the generic PrismaUtils function
+      const users = await PrismaUtils.findMany(prisma.groupUsers, {
+        group_id: group_id as string,
       });
 
       return res.json({
         message: "Group users fetched successfully!",
-        data: user,
+        data: users,
       });
     } catch (error) {
       return res
@@ -38,10 +39,7 @@ class ChatGroupUserController {
   static async store(req: Request, res: Response) {
     try {
       const body: GroupUserType = req.body;
-
-      const user = await prisma.groupUsers.create({
-        data: body,
-      });
+      const user = await PrismaUtils.create(prisma.groupUsers, body);
 
       return res.json({
         message: "User added successfully!",
