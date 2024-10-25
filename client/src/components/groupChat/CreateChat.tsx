@@ -35,8 +35,6 @@ export default function CreateChat({ user }: { user: CustomUser }) {
   });
 
   const onSubmit = async (payload: createChatSchemaType) => {
-    console.log("The chat payload", payload);
-
     try {
       setLoading(true);
       const { data } = await axios.post(CHAT_GROUP_URL, payload, {

@@ -1,12 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { getSocket } from "@/lib/socket.confg";
+import React, { useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 export default function Chats({
   group,
@@ -25,26 +17,6 @@ export default function Chats({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // useEffect(() => {
-  //   const data = localStorage.getItem(group.id);
-  //   if (data) {
-  //     const jsonData = JSON.parse(data);
-  //     if (jsonData?.name && jsonData?.group_id) {
-  //       setOpen(false);
-  //       setChatUser(jsonData);
-  //     }
-  //   }
-  // }, []);
-
-  // // Prevent unnecessary calls
-  // let socket = useMemo(() => {
-  //   const socket = getSocket();
-  //   socket.auth = {
-  //     room: group.id,
-  //   };
-  //   return socket.connect();
-  // }, []);
 
   // Listen for messages
   useEffect(() => {
@@ -95,7 +67,14 @@ export default function Chats({
                   : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
               }`}
             >
-              {message.message}
+              <div className='text-xs text-white-400'>
+                {message.name} -{" "}
+                {new Date(message.created_at).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "numeric",
+                })}
+              </div>
+              <div>{message.message}</div>
             </div>
           ))}
         </div>

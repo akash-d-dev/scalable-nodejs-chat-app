@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PrismaUtils from "../utils/PrismaUtils.js";
 import prisma from "../config/db.config.js";
+import AuthController from "./AuthControllers.js";
 
 // Types
 interface GroupUserType {
@@ -38,7 +39,19 @@ class ChatGroupUserController {
   ////////////////////////////////////////////////////
   static async store(req: Request, res: Response) {
     try {
-      const body: GroupUserType = req.body;
+      const { name, group_id, passCode } = req.body;
+
+      const roomLogin = await AuthController.chatRoomLogin(group_id, passCode);
+
+      if (!roomLogin) {
+        return res.status(400).json({ message: "Invalid room or passCode" });
+      }
+
+      const body: GroupUserType = {
+        name,
+        group_id,
+      };
+
       const user = await PrismaUtils.create(prisma.groupUsers, body);
 
       return res.json({

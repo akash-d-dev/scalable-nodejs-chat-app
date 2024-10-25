@@ -46,8 +46,6 @@ export const kafkaConsumeMessage = async (topic: string) => {
           return; // Early return, stop further processing
         }
 
-        console.log("Processing message:", data);
-
         const {
           message: msgContent,
           name,

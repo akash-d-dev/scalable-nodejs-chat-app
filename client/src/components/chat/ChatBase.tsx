@@ -22,34 +22,18 @@ export default function ChatBase({
   const [socket, setSocket] = useState<any>(null); // Socket instance
   const params = useParams();
 
-  // Check localStorage on page load for user details
-  useEffect(() => {
-    const storedData = localStorage.getItem(params["id"] as string);
-    if (storedData) {
-      const jsonData = JSON.parse(storedData);
-      if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
-        let connection = connectSocket(group, jsonData.passcode);
-        if (!connection) {
-          toast.error("Please check the passcode and try again.");
-          localStorage.removeItem(params["id"] as string);
-        } else {
-          setOpen(false);
-          setChatUser(jsonData);
-        }
-      }
-    }
-  }, []);
-
   // Socket connection function
   const connectSocket = async (
     chatGroup: ChatGroupType,
-    passcode: string
+    passcode: string,
+    userID: string
   ): Promise<boolean> => {
     try {
       const socket = getSocket();
       socket.auth = {
         room: chatGroup.id,
         passCode: passcode,
+        userID: userID,
       };
 
       // Promise that resolves when the socket connection is established or fails
@@ -73,6 +57,24 @@ export default function ChatBase({
       return false; // Return false on exception
     }
   };
+
+  // Check localStorage on page load for user details
+  useEffect(() => {
+    const storedData = localStorage.getItem(params["id"] as string);
+    if (storedData) {
+      const jsonData = JSON.parse(storedData);
+      if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
+        let connection = connectSocket(group, jsonData.passcode, jsonData.id);
+        if (!connection) {
+          toast.error("Please check the passcode and try again.");
+          localStorage.removeItem(params["id"] as string);
+        } else {
+          setOpen(false);
+          setChatUser(jsonData);
+        }
+      }
+    }
+  }, []);
 
   return (
     <div className='flex'>

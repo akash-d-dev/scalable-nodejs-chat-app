@@ -13,7 +13,6 @@ async function dashboard() {
     session?.user?.token!
   );
 
-  console.log("The groups", groups);
   return (
     <div>
       <DashNav

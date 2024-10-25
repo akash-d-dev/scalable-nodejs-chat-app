@@ -26,23 +26,17 @@ export default function ChatUserDialog({
   setOpen: Dispatch<SetStateAction<boolean>>;
   group: ChatGroupType;
   setChatUser: Dispatch<SetStateAction<GroupChatUserType | null>>;
-  connectSocket: (group: ChatGroupType, passcode: string) => Promise<boolean>;
+  connectSocket: (
+    group: ChatGroupType,
+    passcode: string,
+    userID: string
+  ) => Promise<boolean>;
 }) {
   const params = useParams();
   const [state, setState] = useState({
     name: "",
     passcode: "",
   });
-
-  // useEffect(() => {
-  //   const data = localStorage.getItem(params["id"] as string);
-  //   if (data) {
-  //     const jsonData = JSON.parse(data);
-  //     if (jsonData?.name && jsonData?.group_id && jsonData?.passcode) {
-  //       setOpen(false);
-  //     }
-  //   }
-  // }, []);
 
   // Form submission for user dialog
   const handleSubmit = async (
@@ -57,18 +51,18 @@ export default function ChatUserDialog({
     }
 
     try {
-      let connection = await connectSocket(group, passcode);
-
-      console.log("connection", connection);
-
-      if (!connection) {
-        toast.error("Please check the passcode and try again.");
-        return;
-      }
       const { data } = await axios.post(CHAT_GROUP_USERS_URL, {
         name: name,
         group_id: params["id"] as string,
+        passCode: passcode,
       });
+
+      let connection = await connectSocket(group, passcode, data?.data.id);
+
+      if (!connection) {
+        toast.error("User not added, Please try again!");
+        return;
+      }
 
       // Save user details and passcode in local storage
       const userData = { ...data?.data, passcode };
@@ -77,7 +71,7 @@ export default function ChatUserDialog({
       setOpen(false);
       clearCache("chat/[id]");
     } catch (error) {
-      toast.error("Something went wrong. Please try again!");
+      toast.error("Please check the passcode and try again.");
     }
   };
 

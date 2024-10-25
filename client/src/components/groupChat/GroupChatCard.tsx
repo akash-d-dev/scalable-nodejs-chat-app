@@ -12,7 +12,6 @@ export default function GroupChatCard({
   group: ChatGroupType;
   user: CustomUser;
 }) {
-  console.log("The group", group);
   return (
     <Link href={`/chat/${group.id}`} target='_blank' rel='noreferrer'>
       <Card>

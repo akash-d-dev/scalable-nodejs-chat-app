@@ -10,7 +10,6 @@ export default async function chat({ params }: { params: { id: string } }) {
   }
 
   const group: ChatGroupType | null = await fetchChatGroup(params.id);
-  console.log("group", group);
   if (!group) {
     return notFound();
   }
