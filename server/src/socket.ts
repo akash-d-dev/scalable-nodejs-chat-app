@@ -13,7 +13,8 @@ interface CustomSocket extends Socket {
 
 // Logic
 export function setupSocket(io: Server) {
-  let onlineUsersID = new Map(); // Store online users
+  // let onlineUsersID = new Map(); // Store online users
+  let onlineUsersIdByRoom = new Map<string, Set<string>>();
   ////////////////////////////////////////////////////
   // Middleware to validate the room
   ////////////////////////////////////////////////////
@@ -26,8 +27,8 @@ export function setupSocket(io: Server) {
       const userID =
         socket.handshake.auth.userID || socket.handshake.headers.userID;
 
-      if (!room || !passCode) {
-        return next(new Error("Room and passCode are required"));
+      if (!room || !passCode || !userID) {
+        return next(new Error("Room, passCode, and userID are required"));
       }
 
       const roomLogin = await AuthController.chatRoomLogin(room, passCode);
@@ -55,11 +56,22 @@ export function setupSocket(io: Server) {
   ////////////////////////////////////////////////////
   io.on("connection", (socket: CustomSocket) => {
     // Join the room using the room id from the auth
-    socket.join(socket.room);
+    const room = socket.room as string;
+    socket.join(room);
+
     console.log("########################");
     console.log("Connected: ", socket.id);
     console.log("#########################");
 
+    // Add the user to the online users map for the room
+    if (!onlineUsersIdByRoom.has(room)) {
+      onlineUsersIdByRoom.set(room, new Set());
+    }
+    onlineUsersIdByRoom.get(room)?.add(socket.userID as string);
+
+    ////////////////////////////////////////////////////
+    // Message event
+    ////////////////////////////////////////////////////
     socket.on("message", async (message) => {
       try {
         await kafkaProduceMessage(process.env.KAFKA_TOPIC, message).catch(
@@ -69,36 +81,42 @@ export function setupSocket(io: Server) {
         );
 
         // Emit the message to the room
-        socket.to(socket.room).emit("message", message);
+        socket.in(room).emit("message", message);
       } catch (error) {
         console.error("Error in message handler: ", error);
         socket.emit("error", "An error occurred while sending the message");
       }
     });
 
+    ////////////////////////////////////////////////////
+    // User Join event
+    ////////////////////////////////////////////////////
     socket.on("userJoined", async (user) => {
-      try {
-        // socket.to(socket.room).emit("userJoined", user);
-        // io.in(socket.room).emit("userJoined", user);
-        onlineUsersID.set(socket.id, socket.userID);
-        io.in(socket.room).emit("userJoined", {
-          onlineUsersID: [...onlineUsersID.values()],
-          newUser: user,
-        });
-      } catch (error) {
-        console.error("Error in userJoined handler: ", error);
-        socket.emit("error", "An error occurred while joining the room");
+      if (!onlineUsersIdByRoom.has(socket.room)) {
+        onlineUsersIdByRoom.set(socket.room, new Set());
       }
+      onlineUsersIdByRoom.get(socket.room).add(socket.userID);
+
+      io.in(socket.room).emit("userJoined", {
+        onlineUsersID: [...onlineUsersIdByRoom.get(socket.room)],
+        newUser: user,
+      });
     });
 
+    ////////////////////////////////////////////////////
+    // Disconnect event
+    ////////////////////////////////////////////////////
     socket.on("disconnect", () => {
-      console.log("########################");
-      console.log("Disconnected: ", socket.id);
-      console.log("#########################");
+      const roomUsers = onlineUsersIdByRoom.get(room);
+      if (roomUsers) {
+        roomUsers.delete(socket.userID as string);
+        if (roomUsers.size === 0) {
+          onlineUsersIdByRoom.delete(room);
+        }
+      }
 
-      onlineUsersID.delete(socket.id);
-      io.in(socket.room).emit("userLeft", {
-        onlineUsersID: [...onlineUsersID.values()],
+      io.in(room).emit("userLeft", {
+        onlineUsersID: roomUsers ? [...roomUsers] : [],
         userId: socket.userID,
       });
     });

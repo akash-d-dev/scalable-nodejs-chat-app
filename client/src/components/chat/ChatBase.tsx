@@ -22,6 +22,8 @@ export default function ChatBase({
   const [socket, setSocket] = useState<any>(null); // Socket instance
   const params = useParams();
 
+  console.log("users chatbase", oldUsers);
+
   // Socket connection function
   const connectSocket = async (
     chatGroup: ChatGroupType,

@@ -1,3 +1,4 @@
+import { on } from "events";
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 
@@ -12,6 +13,8 @@ export default function ChatSidebar({
 }) {
   const [users, setUsers] = useState<Array<GroupChatUserType>>(oldUsers);
   const [onlineUsersID, setOnlineUsersID] = useState<[number]>([0]);
+
+  console.log("onlineUsersID", onlineUsersID);
 
   useEffect(() => {
     if (!chatUser) return;
@@ -60,8 +63,6 @@ export default function ChatSidebar({
     if (!chatUser) return;
     socket.emit("userJoined", chatUser);
   }, [chatUser]);
-
-  console.log("Online Users: ", onlineUsersID);
 
   return (
     <div className='hidden md:block h-screen overflow-y-auto w-1/5 bg-muted px-2'>
