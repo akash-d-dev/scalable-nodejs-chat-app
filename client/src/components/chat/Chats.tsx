@@ -1,15 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 export default function Chats({
   group,
   oldMessages,
   chatUser,
   socket,
+  isTyping,
+  setIsTyping,
 }: {
   group: ChatGroupType;
   oldMessages: Array<ChatMessageType>;
   chatUser?: GroupChatUserType | null;
   socket: Socket;
+  isTyping: boolean;
+  setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
@@ -32,6 +36,22 @@ export default function Chats({
       // socket.close();
     };
   }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (message.length > 0 && !isTyping) {
+      setIsTyping(true);
+    } else if (message.length === 0 && isTyping) {
+      setIsTyping(false);
+    }
+  }, [message]);
+
+  useEffect(() => {
+    socket.emit("typing", isTyping);
+  }, [isTyping]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

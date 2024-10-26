@@ -15,6 +15,7 @@ interface CustomSocket extends Socket {
 export function setupSocket(io: Server) {
   // let onlineUsersID = new Map(); // Store online users
   let onlineUsersIdByRoom = new Map<string, Set<string>>();
+  let typingUsersByRoom = new Map<string, Set<string>>();
   ////////////////////////////////////////////////////
   // Middleware to validate the room
   ////////////////////////////////////////////////////
@@ -95,11 +96,36 @@ export function setupSocket(io: Server) {
       if (!onlineUsersIdByRoom.has(socket.room)) {
         onlineUsersIdByRoom.set(socket.room, new Set());
       }
-      onlineUsersIdByRoom.get(socket.room).add(socket.userID);
+
+      const roomOnlineUsers = onlineUsersIdByRoom.get(socket.room);
+      roomOnlineUsers.add(user.id);
 
       io.in(socket.room).emit("userJoined", {
-        onlineUsersID: [...onlineUsersIdByRoom.get(socket.room)],
+        onlineUsersID: [...roomOnlineUsers],
         newUser: user,
+      });
+    });
+
+    ////////////////////////////////////////////////////
+    // Typing event
+    ////////////////////////////////////////////////////
+    socket.on("typing", (isTyping: boolean) => {
+      if (!typingUsersByRoom.has(room)) {
+        typingUsersByRoom.set(room, new Set());
+      }
+
+      const roomTypingUsers = typingUsersByRoom.get(room);
+
+      if (isTyping) {
+        roomTypingUsers?.add(socket.userID as string);
+      } else {
+        roomTypingUsers?.delete(socket.userID as string);
+      }
+
+      io.in(room).emit("typing", {
+        userID: socket.userID,
+        isTyping,
+        typingUsers: [...(roomTypingUsers || [])],
       });
     });
 

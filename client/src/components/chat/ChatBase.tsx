@@ -20,9 +20,8 @@ export default function ChatBase({
   const [open, setOpen] = useState(true);
   const [chatUser, setChatUser] = useState<GroupChatUserType | null>(null);
   const [socket, setSocket] = useState<any>(null); // Socket instance
+  const [isTyping, setIsTyping] = useState(false);
   const params = useParams();
-
-  console.log("users chatbase", oldUsers);
 
   // Socket connection function
   const connectSocket = async (
@@ -92,6 +91,8 @@ export default function ChatBase({
               oldMessages={oldMessages}
               chatUser={chatUser}
               socket={socket}
+              isTyping={isTyping}
+              setIsTyping={setIsTyping}
             />
           </>
         ) : (

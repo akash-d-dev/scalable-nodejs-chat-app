@@ -12,9 +12,8 @@ export default function ChatSidebar({
   chatUser: GroupChatUserType | null;
 }) {
   const [users, setUsers] = useState<Array<GroupChatUserType>>(oldUsers);
-  const [onlineUsersID, setOnlineUsersID] = useState<[number]>([0]);
-
-  console.log("onlineUsersID", onlineUsersID);
+  const [onlineUsersID, setOnlineUsersID] = useState<[number]>([-1]);
+  const [typingUsersID, setTypingUsersID] = useState<[number]>([-1]);
 
   useEffect(() => {
     if (!chatUser) return;
@@ -51,10 +50,15 @@ export default function ChatSidebar({
       }
     );
 
+    socket.on("typing", ({ typingUsers }: { typingUsers: [number] }) => {
+      setTypingUsersID(typingUsers);
+    });
+
     // Disconnect the socket when the component is unmounted
     return () => {
       socket.off("userJoined");
       socket.off("userLeft");
+      socket.off("typing");
       // socket.close();
     };
   }, []);
@@ -80,10 +84,22 @@ export default function ChatSidebar({
                 }`}
               >
                 {" "}
-                {item.name}
+                {item.name}{" "}
+                <span
+                  className='text-black'
+                  style={{ fontSize: "14px", fontWeight: 400 }}
+                >
+                  {item.id === chatUser?.id ? "(You)" : ""}
+                </span>
               </p>
               <p>
                 {onlineUsersID.includes(Number(item.id)) ? "Online" : "Offline"}
+              </p>
+              <p>
+                {typingUsersID.includes(Number(item.id)) &&
+                Number(item.id) != Number(chatUser?.id)
+                  ? "Typing..."
+                  : ""}
               </p>
             </div>
             <p>
