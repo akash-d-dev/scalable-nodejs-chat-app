@@ -133,17 +133,31 @@ export function setupSocket(io: Server) {
     // Disconnect event
     ////////////////////////////////////////////////////
     socket.on("disconnect", () => {
-      const roomUsers = onlineUsersIdByRoom.get(room);
-      if (roomUsers) {
-        roomUsers.delete(socket.userID as string);
-        if (roomUsers.size === 0) {
+      // Remove the user from the online users map
+      const roomOnlineUsers = onlineUsersIdByRoom.get(room);
+      if (roomOnlineUsers) {
+        roomOnlineUsers.delete(socket.userID as string);
+        if (roomOnlineUsers.size === 0) {
           onlineUsersIdByRoom.delete(room);
         }
       }
-
       io.in(room).emit("userLeft", {
-        onlineUsersID: roomUsers ? [...roomUsers] : [],
+        onlineUsersID: roomOnlineUsers ? [...roomOnlineUsers] : [],
         userId: socket.userID,
+      });
+
+      // Remove the user from the typing users map
+      const roomTypingUsers = typingUsersByRoom.get(room);
+      if (roomTypingUsers) {
+        roomTypingUsers.delete(socket.userID as string);
+        if (roomTypingUsers.size === 0) {
+          typingUsersByRoom.delete(room);
+        }
+      }
+      io.in(room).emit("typing", {
+        userID: socket.userID,
+        isTyping: false,
+        typingUsers: [...(roomTypingUsers || [])],
       });
     });
 
