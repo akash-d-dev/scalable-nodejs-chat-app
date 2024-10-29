@@ -7,7 +7,8 @@ Home Page
 Dashboard
 ![image](https://github.com/user-attachments/assets/6bcb91b4-817a-4b13-830b-59e7f9825bba)
 Chat Page
-![image](https://github.com/user-attachments/assets/106f23e7-bf1d-4f9c-aa5c-44f103a258f4)
+![image](https://github.com/user-attachments/assets/9ab7052c-0786-4ef3-ae01-e6e2bd9ca8a0)
+
 
 Live Demo
 Check out the live version of ChatBappa: [Live Demo](https://scalable-nodejs-chat-app-client.vercel.app/)
