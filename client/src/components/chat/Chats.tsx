@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { SendHorizontal } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/utils";
 export default function Chats({
   group,
   oldMessages,
@@ -99,20 +100,34 @@ export default function Chats({
     };
 
     if (image) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Image = reader.result as string;
-        payload.image_url = base64Image;
-        payload.has_image = true;
+      // Create a unique filename based on user and timestamp
+      const fileName = `${group.id}/${chatUser?.id}/${Date.now()}_${
+        image.name
+      }`;
 
-        console.log("Payload: ", payload);
-        // Emit the message to the server (now includes the image)
-        socket.emit("message", payload);
-      };
-      reader.readAsDataURL(image); // Convert image to base64 format
-    } else {
-      socket.emit("message", payload);
+      // Upload image to Supabase
+      const { data, error } = await supabase.storage
+        .from("chat-images")
+        .upload(fileName, image);
+
+      if (error) {
+        throw new Error(`Failed to upload image: ${error.message}`);
+      }
+
+      // Get public URL of the uploaded image
+      const imageUrl = supabase.storage
+        .from("chat-images")
+        .getPublicUrl(data.path).data.publicUrl;
+
+      // Update payload with image URL
+      payload.image_url = imageUrl;
+      payload.has_image = true;
     }
+
+    console.log("Payload: ", payload);
+
+    // Emit the message to the server (now includes the image URL)
+    socket.emit("message", payload);
 
     setMessage("");
     setImage(null);

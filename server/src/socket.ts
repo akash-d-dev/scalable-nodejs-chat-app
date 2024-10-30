@@ -1,8 +1,8 @@
 import { Server, Socket } from "socket.io";
-import { kafkaProduceMessage, saveImage } from "./helper.js";
+import { isValidUrl, kafkaProduceMessage, saveImage } from "./helper.js";
 import AuthController from "./controllers/AuthControllers.js";
 import PrismaUtils from "./utils/PrismaUtils.js";
-import { prisma, supabase } from "./config/db.config.js";
+import { prisma } from "./config/db.config.js";
 
 // Types
 interface CustomSocket extends Socket {
@@ -76,16 +76,10 @@ export function setupSocket(io: Server) {
     socket.on("message", async (message) => {
       try {
         if (message.image_url) {
-          const imageUrl = await saveImage(
-            message.image_url,
-            socket.room,
-            socket.userID,
-            message.name
-          );
-
-          // Replace the image field in the message with the URL
-          message.image_url = imageUrl;
-          message.has_image = true;
+          message.has_image = isValidUrl(message.image_url);
+          if (!message.has_image) {
+            message.image_url = "";
+          }
         }
 
         await kafkaProduceMessage(process.env.KAFKA_TOPIC, message).catch(

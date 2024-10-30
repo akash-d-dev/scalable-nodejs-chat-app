@@ -37,6 +37,7 @@ export default function ChatUserDialog({
     name: "",
     passcode: "",
   });
+  const [loading, setLoading] = useState(false);
 
   // Form submission for user dialog
   const handleSubmit = async (
@@ -49,7 +50,7 @@ export default function ChatUserDialog({
       toast.error("Please fill in all fields");
       return;
     }
-
+    setLoading(true);
     try {
       const { data } = await axios.post(CHAT_GROUP_USERS_URL, {
         name: name,
@@ -69,8 +70,10 @@ export default function ChatUserDialog({
       localStorage.setItem(params["id"] as string, JSON.stringify(userData));
       setChatUser(userData);
       setOpen(false);
+      setLoading(false);
       clearCache("chat/[id]");
     } catch (error) {
+      setLoading(false);
       toast.error("Please check the passcode and try again.");
     }
   };
@@ -100,7 +103,9 @@ export default function ChatUserDialog({
             />
           </div>
           <div className='mt-2'>
-            <Button className='w-full'>Submit</Button>
+            <Button className='w-full' disabled={loading}>
+              {loading ? "Processing.." : "Submit"}
+            </Button>
           </div>
         </form>
       </DialogContent>
