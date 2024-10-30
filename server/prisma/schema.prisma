@@ -50,6 +50,8 @@ model Chats {
   group      ChatGroup  @relation(fields: [group_id], references: [id], onDelete: Cascade)
   group_id   String     @db.Uuid
   message    String?
+  image_url  String?
+  has_image  Boolean    @default(false)
   name       String
   created_at DateTime   @default(now())
   user_id    Int

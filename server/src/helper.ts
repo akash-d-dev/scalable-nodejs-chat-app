@@ -1,4 +1,4 @@
-import prisma from "./config/db.config.js";
+import { prisma } from "./config/db.config.js";
 import { consumer, producer } from "./config/kafka.config.js";
 
 ////////////////////////////////////////////////////////////
@@ -52,6 +52,8 @@ export const kafkaConsumeMessage = async (topic: string) => {
           created_at,
           group_id,
           user_id,
+          image_url,
+          has_image,
         } = data;
 
         try {
@@ -63,6 +65,8 @@ export const kafkaConsumeMessage = async (topic: string) => {
               created_at: created_at,
               group_id: group_id,
               user_id: user_id,
+              image_url: image_url,
+              has_image: has_image,
             },
           });
         } catch (error) {
@@ -95,6 +99,8 @@ export const checkEnvVariables = () => {
     "KAFKA_GROUP_ID",
     "KAFKA_CA_PATH",
     "DATABASE_URL",
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
   ];
 
   const missingEnvVars = requiredEnvVars.filter(

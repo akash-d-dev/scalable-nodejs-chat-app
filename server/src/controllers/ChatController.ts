@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import PrismaUtils from "../utils/PrismaUtils.js";
-import prisma from "../config/db.config.js";
+import { prisma } from "../config/db.config.js";
 
 class ChatController {
   ////////////////////////////////////////////////////
