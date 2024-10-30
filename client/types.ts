@@ -20,6 +20,6 @@ type ChatMessageType = {
   name: string;
   created_at: string;
   user_id: string;
-  has_image?: boolean;
-  image_url?: string;
+  has_file?: boolean;
+  file_url?: string;
 };

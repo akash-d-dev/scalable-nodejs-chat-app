@@ -52,8 +52,8 @@ export const kafkaConsumeMessage = async (topic: string) => {
           created_at,
           group_id,
           user_id,
-          image_url,
-          has_image,
+          file_url,
+          has_file,
         } = data;
 
         try {
@@ -65,8 +65,8 @@ export const kafkaConsumeMessage = async (topic: string) => {
               created_at: created_at,
               group_id: group_id,
               user_id: user_id,
-              image_url: image_url,
-              has_image: has_image,
+              file_url: file_url,
+              has_file: has_file,
             },
           });
         } catch (error) {

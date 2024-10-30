@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { SendHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/utils";
+
 export default function Chats({
   group,
   oldMessages,
@@ -27,20 +28,17 @@ export default function Chats({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  const [image, setImage] = useState<File | null>(null); // State for image
+  const [file, setFile] = useState<File | null>(null); // State for file
 
   // Listen for messages
   useEffect(() => {
-    //Socket event listener
     socket.on("message", (data: ChatMessageType) => {
       setMessages((prevMessages) => [...prevMessages, data]);
       scrollToBottom();
     });
 
-    // Disconnect the socket when the component is unmounted
     return () => {
       socket.off("message");
-      // socket.close();
     };
   }, []);
 
@@ -60,35 +58,36 @@ export default function Chats({
     socket.emit("typing", isTyping);
   }, [isTyping]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
 
-      if (
-        selectedFile.name.split(".").pop() !== "jpg" &&
-        selectedFile.name.split(".").pop() !== "jpeg" &&
-        selectedFile.name.split(".").pop() !== "png"
-      ) {
-        toast.error("Invalid image type. Only JPEG, PNG and JPG are allowed.");
+      const allowedFileTypes = ["jpg", "jpeg", "png", "mp4", "mkv"];
+      const fileExtension = selectedFile.name.split(".").pop()?.toLowerCase();
+
+      if (!allowedFileTypes.includes(fileExtension || "")) {
+        toast.error(
+          "Invalid file type. Only JPEG, PNG, MKV and MP4 are allowed."
+        );
         e.target.value = "";
         return;
       }
 
-      const allowedSize = 3 * 1024 * 1024; // 3MB
+      const allowedSize = 10 * 1024 * 1024; // 10MB limit for videos
       if (selectedFile.size > allowedSize) {
-        toast.error("Image exceeds the allowed size of 3MB.");
+        toast.error("File exceeds the allowed size of 10MB.");
         e.target.value = "";
         return;
       }
 
-      setImage(selectedFile);
+      setFile(selectedFile);
     }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!message.length && !image) return;
+    if (!message.length && !file) return;
 
     const payload: ChatMessageType = {
       message: message || "",
@@ -96,41 +95,34 @@ export default function Chats({
       created_at: new Date().toISOString(),
       group_id: group.id,
       user_id: chatUser?.id ?? "",
-      has_image: !!image,
+      has_file: !!file,
     };
 
-    if (image) {
-      // Create a unique filename based on user and timestamp
-      const fileName = `${group.id}/${chatUser?.id}/${Date.now()}_${
-        image.name
-      }`;
+    if (file) {
+      const fileName = `${group.id}/${chatUser?.id}/${Date.now()}_${file.name}`;
 
-      // Upload image to Supabase
+      // Upload file to Supabase
       const { data, error } = await supabase.storage
         .from("chat-images")
-        .upload(fileName, image);
+        .upload(fileName, file);
 
       if (error) {
-        throw new Error(`Failed to upload image: ${error.message}`);
+        throw new Error(`Failed to upload file: ${error.message}`);
       }
 
-      // Get public URL of the uploaded image
-      const imageUrl = supabase.storage
+      // Get public URL of the uploaded file
+      const fileUrl = supabase.storage
         .from("chat-images")
         .getPublicUrl(data.path).data.publicUrl;
 
-      // Update payload with image URL
-      payload.image_url = imageUrl;
-      payload.has_image = true;
+      payload.file_url = fileUrl;
+      payload.has_file = true;
     }
 
-    console.log("Payload: ", payload);
-
-    // Emit the message to the server (now includes the image URL)
     socket.emit("message", payload);
 
     setMessage("");
-    setImage(null);
+    setFile(null);
     setMessages([...messages, payload]);
 
     if (fileInputRef.current) {
@@ -138,16 +130,23 @@ export default function Chats({
     }
   };
 
-  console.log(oldMessages);
+  // Helper function to determine if the file is an image or video
+  const isImage = (fileUrl: string) => {
+    return /\.(jpg|jpeg|png)$/i.test(fileUrl);
+  };
+
+  const isVideo = (fileUrl: string) => {
+    return /\.(mp4|mkv)$/i.test(fileUrl);
+  };
 
   return (
-    <div className='flex flex-col h-[94vh]  p-4'>
+    <div className='flex flex-col h-[94vh] p-4'>
       <div className='flex-1 overflow-y-auto flex flex-col-reverse'>
         <div ref={messagesEndRef} />
         <div className='flex flex-col gap-2'>
           {messages.map(
             (message, i) =>
-              (message.message !== "" || message.has_image) && (
+              (message.message !== "" || message.has_file) && (
                 <div
                   key={i}
                   className={`max-w-sm rounded-lg p-2 ${
@@ -163,14 +162,24 @@ export default function Chats({
                       minute: "numeric",
                     })}
                   </div>
-                  {message.has_image ? (
+                  {message.has_file ? (
                     <>
-                      <div>{message?.message}</div>{" "}
-                      <img
-                        src={message.image_url}
-                        alt='shared'
-                        className='max-w-full h-auto rounded-lg mt-2'
-                      />
+                      <div>{message.message}</div>
+                      {message.file_url && isImage(message.file_url) ? (
+                        <img
+                          src={message.file_url}
+                          alt='shared content'
+                          className='max-w-full h-auto rounded-lg mt-2'
+                        />
+                      ) : message.file_url && isVideo(message.file_url) ? (
+                        <video
+                          controls
+                          className='max-w-full h-auto rounded-lg mt-2'
+                        >
+                          <source src={message.file_url} type='video/mp4' />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : null}
                     </>
                   ) : (
                     <div>{message.message}</div>
@@ -190,9 +199,9 @@ export default function Chats({
         />
         <div className='grid w-full max-w-sm items-center gap-1.5'>
           <Input
-            id='picture'
+            id='file'
             type='file'
-            onChange={handleImageSelect}
+            onChange={handleFileSelect}
             ref={fileInputRef}
           />
         </div>

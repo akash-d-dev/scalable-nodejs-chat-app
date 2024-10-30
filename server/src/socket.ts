@@ -75,10 +75,10 @@ export function setupSocket(io: Server) {
     ////////////////////////////////////////////////////
     socket.on("message", async (message) => {
       try {
-        if (message.image_url) {
-          message.has_image = isValidUrl(message.image_url);
-          if (!message.has_image) {
-            message.image_url = "";
+        if (message.file_url) {
+          message.has_file = isValidUrl(message.file_url);
+          if (!message.has_file) {
+            message.file_url = "";
           }
         }
 
