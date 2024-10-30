@@ -15,6 +15,14 @@ Check out the live version of ChatBappa: [Live Demo](https://scalable-nodejs-cha
 
 ChatBappa is a free real-time chatting application. You can create chat rooms and share them with anyone; people can join using just the room ID and passcode—no login or signup required.
 
+# Features
+- Login
+- Create/Edit/Delete Rooms
+- Know who is online and who is typing
+- Real-time Text Messages
+- Real-time Video Messages
+- Real-time Image Messages
+
 # Technologies Used
 - Supabase: An open-source, serverless database infrastructure that provides a Postgres database as part of its hosted backend services
 - Prisma(SQL): A next-generation ORM that makes working with databases easy for application developers.
