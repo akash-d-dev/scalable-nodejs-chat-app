@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { prisma } from "../config/db.config.js";
+import { prisma, supabase } from "../config/db.config.js";
 import PrismaUtils from "../utils/PrismaUtils.js";
+import { deleteImages } from "../helper.js";
 
 class ChatGroupController {
   ////////////////////////////////////////////////////
@@ -108,14 +109,19 @@ class ChatGroupController {
   ////////////////////////////////////////////////////
   // To delete a chat group
   ////////////////////////////////////////////////////
-
   static async destroy(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      await PrismaUtils.delete(prisma.chatGroup, { id });
+      const { id: groupId } = req.params;
 
-      return res.json({ message: "Chat Group deleted successfully!" });
+      await deleteImages(groupId);
+
+      await PrismaUtils.delete(prisma.chatGroup, { id: groupId });
+
+      return res.json({
+        message: "Chat Group and associated images deleted successfully!",
+      });
     } catch (error) {
+      console.error("Error in deleting group and images: ", error);
       return res
         .status(500)
         .json({ message: "Something went wrong!, Please try again later." });

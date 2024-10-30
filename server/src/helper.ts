@@ -1,4 +1,4 @@
-import { prisma } from "./config/db.config.js";
+import { prisma, supabase } from "./config/db.config.js";
 import { consumer, producer } from "./config/kafka.config.js";
 
 ////////////////////////////////////////////////////////////
@@ -76,6 +76,116 @@ export const kafkaConsumeMessage = async (topic: string) => {
     });
   } catch (error) {
     console.error("Error setting up consumer:", error);
+  }
+};
+
+////////////////////////////////////////////////////////////
+// To save an image to Supabase storage
+////////////////////////////////////////////////////////////
+export const saveImage = async (
+  imageUrl: string,
+  groupId: string,
+  userId: string,
+  fileName: string
+) => {
+  try {
+    // Extract the base64 image
+    const base64Image = imageUrl.split(",")[1];
+    const imageBuffer = Buffer.from(base64Image, "base64");
+
+    // Get the content type from the base64 data
+    const mimeType = imageUrl.split(";")[0].split(":")[1];
+    const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedImageTypes.includes(mimeType)) {
+      throw new Error(
+        "Invalid image type. Only JPEG, PNG and JPG are allowed."
+      );
+    }
+
+    // Validate the image size
+    const allowedSize = 3 * 1024 * 1024; // 3MB
+    if (imageBuffer.length > allowedSize) {
+      throw new Error("Image exceeds the allowed size.");
+    }
+
+    // Construct the file path: groupId/userId/timestamp_userName
+    const filePath = `${groupId}/${userId}/${Date.now()}_${fileName}`;
+
+    // Upload image to Supabase bucket
+    const { data, error } = await supabase.storage
+      .from("chat-images")
+      .upload(filePath, imageBuffer);
+
+    if (error) {
+      throw new Error("Error uploading image to Supabase");
+    }
+
+    // Get the public URL of the uploaded image
+    const uploadedImageUrl = supabase.storage
+      .from("chat-images")
+      .getPublicUrl(data.path).data.publicUrl;
+
+    return uploadedImageUrl; // Return the URL of the uploaded image
+  } catch (error) {
+    console.error("Error saving image: ", error);
+    throw error;
+  }
+};
+
+////////////////////////////////////////////////////////////
+// To delete all images in a group directory from Supabase
+////////////////////////////////////////////////////////////
+export const deleteImages = async (groupId: string) => {
+  try {
+    // List all user subdirectories in the group directory
+    const { data: userDirs, error: listUserDirsError } = await supabase.storage
+      .from("chat-images")
+      .list(groupId, { limit: 100, offset: 0 });
+
+    if (listUserDirsError) {
+      throw new Error(
+        `Error fetching user directories for group ${groupId}: ${listUserDirsError.message}`
+      );
+    }
+
+    if (userDirs && userDirs.length > 0) {
+      // Iterate over user subdirectories to delete all files
+      for (const userDir of userDirs) {
+        const userDirPath = `${groupId}/${userDir.name}`;
+
+        // List all files in the user directory
+        const { data: userFiles, error: listFilesError } =
+          await supabase.storage
+            .from("chat-images")
+            .list(userDirPath, { limit: 100, offset: 0 });
+
+        if (listFilesError) {
+          throw new Error(
+            `Error fetching files in directory ${userDirPath}: ${listFilesError.message}`
+          );
+        }
+
+        if (userFiles && userFiles.length > 0) {
+          const filePaths = userFiles.map(
+            (file) => `${userDirPath}/${file.name}`
+          );
+
+          // Remove files from Supabase storage
+          const { error: removeError } = await supabase.storage
+            .from("chat-images")
+            .remove(filePaths);
+
+          if (removeError) {
+            throw new Error(
+              `Error deleting files in directory ${userDirPath}: ${removeError.message}`
+            );
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error in deleteImages function: ", error);
+    throw error;
   }
 };
 

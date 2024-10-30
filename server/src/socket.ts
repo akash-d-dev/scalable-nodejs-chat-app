@@ -1,10 +1,8 @@
 import { Server, Socket } from "socket.io";
-import { kafkaProduceMessage } from "./helper.js";
+import { kafkaProduceMessage, saveImage } from "./helper.js";
 import AuthController from "./controllers/AuthControllers.js";
 import PrismaUtils from "./utils/PrismaUtils.js";
 import { prisma, supabase } from "./config/db.config.js";
-import fs from "fs";
-import path from "path";
 
 // Types
 interface CustomSocket extends Socket {
@@ -78,43 +76,15 @@ export function setupSocket(io: Server) {
     socket.on("message", async (message) => {
       try {
         if (message.image_url) {
-          // Extract the base64 image
-          const base64Image = message.image_url.split(",")[1];
-          const imageBuffer = Buffer.from(base64Image, "base64");
+          const imageUrl = await saveImage(
+            message.image_url,
+            socket.room,
+            socket.userID,
+            message.name
+          );
 
-          // Get the content type from the base64 data
-          const mimeType = message.image_url.split(";")[0].split(":")[1];
-          console.log("MIME Type: ", mimeType);
-          const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg"];
-          if (!allowedImageTypes.includes(mimeType)) {
-            throw new Error(
-              "Invalid image type. Only JPEG, PNG and JPG are allowed."
-            );
-          }
-
-          // Validate the image size
-          const allowedSize = 3 * 1024 * 1024; // 3MB
-          console.log("Image size: ", imageBuffer.length);
-          if (imageBuffer.length > allowedSize) {
-            throw new Error("Image exceeds the allowed size.");
-          }
-
-          const fileName = `public/${Date.now()}_${message.name}`;
-
-          // Upload image to Supabase bucket
-          const { data, error } = await supabase.storage
-            .from("chat-images")
-            .upload(fileName, imageBuffer);
-
-          if (error) {
-            throw new Error("Error uploading image to Supabase");
-          }
-
-          // If upload is successful, replace image in message with the URL
-          const imageUrl = supabase.storage
-            .from("chat-images")
-            .getPublicUrl(data.path).data.publicUrl;
-          message.image_url = imageUrl; // Replace the image field with URL
+          // Replace the image field in the message with the URL
+          message.image_url = imageUrl;
           message.has_image = true;
         }
 
