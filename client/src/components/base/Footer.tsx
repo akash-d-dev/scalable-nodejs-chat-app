@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export default function Footer() {
   return (
@@ -9,9 +11,16 @@ export default function Footer() {
       <div className='flex justify-between'>
         <div>
           <div>© 2024 ChatBappa. All rights reserved.</div>
-          <div className='space-x-4 mt-2'>
-            <Link href='/privacy-policy'>Privacy Policy</Link>
-            <Link href='/terms-of-service'>Terms of Service</Link>
+          <div className='flex items-center space-x-4 mt-6'>
+            <Link
+              href='https://github.com/akash-d-dev'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <GitHubLogoIcon />
+            </Link>
+            <Link href='/#'>Privacy Policy</Link>
+            <Link href='/#'>Terms of Service</Link>
           </div>
         </div>
         <div className='space-y-4'>
