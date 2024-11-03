@@ -32,3 +32,5 @@ ChatBappa is a free real-time chatting application. You can create chat rooms an
 - HTML: The standard markup language for creating web pages
 - Shadcn: A UI framework that offers a collection of customizable React components for building user interfaces
 - TypeScript: The programming language used for client-side and server-side scripting
+- Kafka: A distributed streaming platform used to handle high throughput messaging and event streaming.
+- Redis: An in-memory data structure store used as a database, cache, and message broker, serving as an adapter to interconnect multiple servers.
