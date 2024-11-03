@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { SendHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/utils";
+import { set } from "zod";
 
 export default function Chats({
   group,
@@ -21,6 +22,7 @@ export default function Chats({
   isTyping: boolean;
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<ChatMessageType>>(oldMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -86,8 +88,9 @@ export default function Chats({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if ((!message.length && !file) || loading) return;
 
-    if (!message.length && !file) return;
+    setLoading(true);
 
     const payload: ChatMessageType = {
       message: message || "",
@@ -107,6 +110,7 @@ export default function Chats({
         .upload(fileName, file);
 
       if (error) {
+        setLoading(false);
         throw new Error(`Failed to upload file: ${error.message}`);
       }
 
@@ -128,6 +132,7 @@ export default function Chats({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    setLoading(false);
   };
 
   // Helper function to determine if the file is an image or video
@@ -189,23 +194,27 @@ export default function Chats({
           )}
         </div>
       </div>
-      <form onSubmit={handleSubmit} className='mt-2 flex items-center'>
+      <form
+        onSubmit={handleSubmit}
+        className='mt-2 flex items-center gap-1 border rounded-lg border-[rgb(226 232 240)] p-1'
+      >
         <input
           type='text'
           placeholder='Type a message...'
           value={message}
-          className='flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500'
+          className='flex-1 p-2 rounded-lg outline-none focus:ring-0'
           onChange={(e) => setMessage(e.target.value)}
         />
-        <div className='grid w-full max-w-sm items-center gap-1.5'>
+        <div className='grid w-30 max-w-sm items-center gap-1.5'>
           <Input
             id='file'
             type='file'
             onChange={handleFileSelect}
             ref={fileInputRef}
+            className='border-none width-10%'
           />
         </div>
-        <Button variant='link' size='icon'>
+        <Button variant='outline' size='icon'>
           <SendHorizontal className='h-4 w-4' />
         </Button>
       </form>
