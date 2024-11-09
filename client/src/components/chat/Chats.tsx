@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import { SendHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/utils";
-import { set } from "zod";
 
 export default function Chats({
   group,
@@ -75,7 +74,7 @@ export default function Chats({
         return;
       }
 
-      const allowedSize = 10 * 1024 * 1024; // 10MB limit for videos
+      const allowedSize = 10 * 1024 * 1024; // 10MB limit
       if (selectedFile.size > allowedSize) {
         toast.error("File exceeds the allowed size of 10MB.");
         e.target.value = "";
