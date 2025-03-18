@@ -38,7 +38,7 @@ export function setupSocket(io: Server) {
     });
 
     // User Join event
-    socket.on("userJoined", (user) => {
+    socket.on("user_joined", (user) => {
       handleUserJoined(io, socket, user);
     });
 
@@ -149,7 +149,7 @@ function processMessageFile(message: any) {
 function handleUserJoined(io: Server, socket: CustomSocket, user: any) {
   addUserToRoomUsers(socket.room as string, user.id);
 
-  io.in(socket.room).emit("userJoined", {
+  io.in(socket.room).emit("user_joined", {
     onlineUsersID: [...(onlineUsersIdByRoom.get(socket.room) || [])],
     newUser: user,
   });
@@ -209,7 +209,7 @@ function removeUserFromRoom(io: Server, socket: CustomSocket, room: string) {
       onlineUsersIdByRoom.delete(room);
     }
   }
-  io.in(room).emit("userLeft", {
+  io.in(room).emit("user_left", {
     onlineUsersID: roomOnlineUsers ? [...roomOnlineUsers] : [],
     userId: socket.userID,
   });

@@ -19,7 +19,7 @@ export default function ChatSidebar({
     if (!chatUser) return;
 
     socket.on(
-      "userJoined",
+      "user_joined",
       ({
         onlineUsersID,
         newUser,
@@ -38,7 +38,7 @@ export default function ChatSidebar({
     );
 
     socket.on(
-      "userLeft",
+      "user_left",
       ({
         onlineUsersID,
         userId,
@@ -56,8 +56,8 @@ export default function ChatSidebar({
 
     // Disconnect the socket when the component is unmounted
     return () => {
-      socket.off("userJoined");
-      socket.off("userLeft");
+      socket.off("user_joined");
+      socket.off("user_left");
       socket.off("typing");
       // socket.close();
     };
@@ -65,7 +65,7 @@ export default function ChatSidebar({
 
   useEffect(() => {
     if (!chatUser) return;
-    socket.emit("userJoined", chatUser);
+    socket.emit("user_joined", chatUser);
   }, [chatUser]);
 
   return (
